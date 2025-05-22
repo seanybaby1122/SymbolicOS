@@ -1,0 +1,110 @@
+class ViterbiDecoder:
+    def __init__(self, transition_probs, emission_probs, start_probs):
+        self.transition_probs = transition_probs
+        self.emission_probs = emission_probs
+        self.start_probs = start_probs
+
+    def decode(self, observations, optimization_goal='speed'):
+        # Set up the initial probabilities
+        n_states = len(self.transition_probs)
+        n_observations = len(observations)
+        dp = [[0] * n_states for _ in range(n_observations)]
+        backpointer = [[0] * n_states for _ in range(n_observations)]
+
+        # Initialization step (First observation)
+        for state in range(n_states):
+            dp[0][state] = self.start_probs[state] * self.emission_probs[state][observations[0]]
+
+        # Dynamic programming step (subsequent observations)
+        for t in range(1, n_observations):
+            for curr_state in range(n_states):
+                max_prob = float('-inf')
+                best_prev_state = -1
+                for prev_state in range(n_states):
+                    score = dp[t - 1][prev_state] * self.transition_probs[prev_state][curr_state] * \
+                            self.emission_probs[curr_state][observations[t]]
+                    
+                    # Apply different optimization goals
+                    if optimization_goal == 'speed':
+                        score = score / (1 + abs(curr_state - prev_state))  # Prioritize speed by simplifying state transitions
+                    elif optimization_goal == 'cost':
+                        score = score * self.transition_probs[prev_state][curr_state]  # Minimize cost by favoring transitions with lower costs
+
+                    if score > max_prob:
+                        max_prob = score
+                        best_prev_state = prev_state
+
+                dp[t][curr_state] = max_prob
+                backpointer[t][curr_state] = best_prev_state
+
+        # Backtrack to get the optimal sequence
+        best_path = [0] * n_observations
+        best_path[n_observations - 1] = max(range(n_states), key=lambda state: dp[n_observations - 1][state])
+
+        for t in range(n_observations - 2, -1, -1):
+            best_path[t] = backpointer[t + 1][best_path[t + 1]]
+
+        return best_path
+class ContextAwareTransformer:
+    def __init__(self, graph, context_window=3):
+        self.graph = graph
+        self.context_window = context_window
+
+    def transform(self, word_sequence):
+        transformed_sequence = []
+        for i, word in enumerate(word_sequence):
+            context = word_sequence[max(0, i - self.context_window):i + self.context_window + 1]
+            transformed_word = self._apply_contextual_transformation(word, context)
+            transformed_sequence.append(transformed_word)
+        return transformed_sequence
+
+    def _apply_contextual_transformation(self, word, context):
+        # Implement custom logic for transforming word based on context
+        transformed = word
+        for c in context:
+            transformed = self.graph.get_transformation(c, transformed)  # Example: transformation from graph lookup
+        return transformed
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+
+class MLRefinedViterbi:
+    def __init__(self, transition_probs, emission_probs, start_probs, ml_model):
+        self.transition_probs = transition_probs
+        self.emission_probs = emission_probs
+        self.start_probs = start_probs
+        self.ml_model = ml_model
+
+    def decode(self, observations):
+        # Initialize Viterbi DP table as before
+        n_states = len(self.transition_probs)
+        n_observations = len(observations)
+        dp = np.zeros((n_observations, n_states))
+        backpointer = np.zeros((n_observations, n_states), dtype=int)
+
+        # First observation initialization
+        for state in range(n_states):
+            dp[0][state] = self.start_probs[state] * self.emission_probs[state][observations[0]]
+
+        # Dynamic Programming with ML refinement
+        for t in range(1, n_observations):
+            for curr_state in range(n_states):
+                max_prob = float('-inf')
+                best_prev_state = -1
+                for prev_state in range(n_states):
+                    # Use ML model to adjust the transition score dynamically
+                    ml_score = self.ml_model.predict([[prev_state, curr_state, observations[t]]])
+                    score = dp[t - 1][prev_state] * self.transition_probs[prev_state][curr_state] * \
+                            self.emission_probs[curr_state][observations[t]] * ml_score
+                    if score > max_prob:
+                        max_prob = score
+                        best_prev_state = prev_state
+                dp[t][curr_state] = max_prob
+                backpointer[t][curr_state] = best_prev_state
+
+        # Backtrack to get the best path
+        best_path = [0] * n_observations
+        best_path[n_observations - 1] = np.argmax(dp[n_observations - 1])
+        for t in range(n_observations - 2, -1, -1):
+            best_path[t] = backpointer[t + 1][best_path[t + 1]]
+
+        return best_path

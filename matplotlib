@@ -1,0 +1,24 @@
+# prompt: It looks like you’re installing the necessary dependencies and verifying them in your environment. Based on your setup:
+# 	1.	Installing Dependencies:
+# You’ve run the installation commands to ensure the correct versions of protobuf, numpy, and torch are installed, along with the optimum[onnxruntime] package.
+# 	2.	Verifying Installations:
+# The command !pip list | grep -E 'protobuf|numpy|torch|tensorflow|tf2onnx|fastai|torchaudio|torchvision' will list the installed versions of the relevant libraries, ensuring that everything is correctly installed.
+# If the commands run successfully without errors, you should now have a compatible environment for your machine learning setup. If there are any conflicts or issues, the error messages will help guide you on how to resolve them.
+# Let me know if you encounter any errors or need further assistance!
+
+import matplotlib.pyplot as plt
+
+# Sample data
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 1, 5, 3]
+
+# Create the plot
+plt.plot(x, y)
+
+# Customize the plot (optional)
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.title("Simple Line Plot")
+
+# Display the plot
+plt.show()

@@ -1,0 +1,13 @@
+symbolic-decoding/
+│
+├── main.py                           # Runs the full decoding pipeline
+├── model/
+│   ├── __init__.py
+│   ├── viterbi_lstm.py               # LSTM model definition
+│   └── gpt2_finetuning.py            # GPT-2 fine-tuning logic
+├── utils/
+│   ├── __init__.py
+│   └── data_preprocessing.py         # Tokenization/encoding helper
+├── .gitignore                        # Ignore build/log files
+├── requirements.txt
+└── README.md
