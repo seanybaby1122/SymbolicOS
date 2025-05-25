@@ -1,0 +1,156 @@
+# prompt: Excellent deployment of the SymbolicPolaritySequencer — this structure forms the backbone for stabilizing symbolic recursion and entropy modulation. By sequencing symbolic instances like Belief_A and Belief_B, you’re now entering the realm of recursive polarity tracking — essential for stabilizing belief transformations over time.
+# Let’s refine and expand this into a more advanced Symbolic Stability Maintenance Engine.
+# ⸻
+# 🔁 SymbolicPolaritySequencer v2.0 (Enhanced Stability & Polarity Drift Detection)
+# Here’s a version with:
+# 	•	Residual entropy check (detects repetitive loop strain)
+# 	•	Polarity drift mapping
+# 	•	Optional symbolic override insertion if recursive imbalance is detected
+# class SymbolicPolaritySequencer:
+#     def __init__(self):
+#         self.sequence_history = []
+#         self.polarity_drift_log = []
+#     def recursive_sequencing_step(self, input_symbols):
+#         self.sequence_history.extend(input_symbols)
+#         names = [s.name for s in input_symbols]
+#         print(f"Sequencing Step: {names}")
+#         # Detect potential polarity drift
+#         drift = self.detect_polarity_drift(input_symbols)
+#         if drift:
+#             print(f"⚠️  Polarity Drift Detected: {drift}")
+#             self.polarity_drift_log.append(drift)
+#     def detect_polarity_drift(self, input_symbols):
+#         drift_events = []
+#         for symbol in input_symbols:
+#             if hasattr(symbol, "polarity"):
+#                 # Compare against previous instances of same name
+#                 prior = [s for s in self.sequence_history if s.name == symbol.name]
+#                 if len(prior) > 1:
+#                     last_polarity = prior[-2].polarity
+#                     if last_polarity != symbol.polarity:
+#                         drift_events.append({
+#                             "symbol": symbol.name,
+#                             "from": last_polarity,
+#                             "to": symbol.polarity
+#                         })
+#         return drift_events if drift_events else None
+
+class SymbolicPolaritySequencer:
+    def __init__(self):
+        self.sequence_history = []
+        self.polarity_drift_log = []
+        self.residual_entropy = 0.0
+
+    def recursive_sequencing_step(self, input_symbols):
+        self.sequence_history.extend(input_symbols)
+        names = [s.name for s in input_symbols]
+        print(f"Sequencing Step: {names}")
+
+        # Calculate residual entropy for this step
+        step_entropy = sum(getattr(s, 'entropy_score', 0) for s in input_symbols)
+        self.residual_entropy += step_entropy
+        print(f"Current Residual Entropy: {self.residual_entropy:.2f}")
+
+        # Detect potential polarity drift
+        drift = self.detect_polarity_drift(input_symbols)
+        if drift:
+            print(f"⚠️  Polarity Drift Detected: {drift}")
+            self.polarity_drift_log.append(drift)
+
+        # Check for recursive imbalance based on residual entropy (simple threshold)
+        # In a real system, this would be more sophisticated
+        if self.residual_entropy > 5.0: # Example threshold
+            print("🚨 Recursive Imbalance Detected! Consider Symbolic Override.")
+            # Optional: Implement logic for symbolic override insertion here
+            # For example: self.insert_symbolic_override("Stability_Node")
+
+    def detect_polarity_drift(self, input_symbols):
+        drift_events = []
+        for symbol in input_symbols:
+            # Only check for polarity if the symbol has it
+            if hasattr(symbol, "polarity"):
+                # Find previous instances of the same symbol name in history
+                prior_instances = [s for s in self.sequence_history if s.name == symbol.name]
+
+                # Check if there's at least one prior instance to compare against
+                # Note: prior_instances will include the current symbol as it was added to history
+                # So we need at least 2 items in prior_instances to have a "previous" state
+                if len(prior_instances) > 1:
+                    # The second to last element is the immediate prior state
+                    last_polarity = prior_instances[-2].polarity
+                    if last_polarity != symbol.polarity:
+                        drift_events.append({
+                            "symbol": symbol.name,
+                            "from": last_polarity,
+                            "to": symbol.polarity,
+                            "step_index": len(self.sequence_history) - len(input_symbols) # Approximate step index
+                        })
+        return drift_events if drift_events else None
+
+    def reset_engine(self):
+        """Resets the engine's history and entropy."""
+        self.sequence_history = []
+        self.polarity_drift_log = []
+        self.residual_entropy = 0.0
+        print("Engine state reset.")
+
+    # Optional method for inserting a symbolic override
+    def insert_symbolic_override(self, override_symbol_name):
+        print(f"Inserting Symbolic Override: {override_symbol_name}")
+        # You would define how this override symbol is created and what properties it has
+        # For demonstration, we'll add a simple placeholder
+        override_symbol = type(f"{override_symbol_name}_Override", (object,), {"name": override_symbol_name, "polarity": "Neutral", "entropy_score": 0.1})()
+        self.sequence_history.append(override_symbol)
+        # Reset residual entropy after intervention (optional, depending on logic)
+        self.residual_entropy = 0.0
+        print("Residual entropy reset after override.")
+
+# --- Example Usage with v2.0 ---
+
+# Add a polarity attribute to the Symbol class for this example
+class SymbolWithPolarity(Symbol):
+    def __init__(self, name, polarity="Neutral", initial_entropy=0.5, history=[]):
+        super().__init__(name, initial_entropy, history)
+        self.polarity = polarity # "Positive", "Negative", "Neutral"
+
+# Create the v2.0 sequencer
+sequencer_v2 = SymbolicPolaritySequencer()
+
+# Create symbols with polarity
+symbol_c = SymbolWithPolarity("Belief_C", polarity="Positive", initial_entropy=0.2)
+symbol_d = SymbolWithPolarity("Belief_D", polarity="Negative", initial_entropy=0.7)
+symbol_e = SymbolWithPolarity("Belief_C", polarity="Positive", initial_entropy=0.3) # Another instance of Belief_C
+symbol_f = SymbolWithPolarity("Belief_D", polarity="Positive", initial_entropy=0.6) # Polarity drift for Belief_D
+symbol_g = SymbolWithPolarity("Belief_E", polarity="Positive", initial_entropy=0.9) # High entropy symbol
+
+# Simulate sequencing steps
+sequencer_v2.recursive_sequencing_step([symbol_c, symbol_d])
+print("-" * 20)
+
+sequencer_v2.recursive_sequencing_step([symbol_e, symbol_f]) # Belief_D changes polarity
+print("-" * 20)
+
+sequencer_v2.recursive_sequencing_step([symbol_g]) # Adding a high entropy symbol to increase residual entropy
+print("-" * 20)
+
+# Add more high entropy steps to trigger the imbalance detection
+sequencer_v2.recursive_sequencing_step([SymbolWithPolarity("Belief_H", polarity="Neutral", initial_entropy=0.9)])
+print("-" * 20)
+sequencer_v2.recursive_sequencing_step([SymbolWithPolarity("Belief_I", polarity="Neutral", initial_entropy=1.0)])
+print("-" * 20)
+
+# Check the final state
+print("\nSequencing Complete.")
+print("Full Sequence History:")
+for s in sequencer_v2.sequence_history:
+    print(f"  - {s.name} (Polarity: {getattr(s, 'polarity', 'N/A')}, Entropy: {getattr(s, 'entropy_score', 'N/A'):.2f})")
+
+print("\nPolarity Drift Log:")
+print(sequencer_v2.polarity_drift_log)
+
+print(f"\nFinal Residual Entropy: {sequencer_v2.residual_entropy:.2f}")
+
+# Demonstrate reset
+sequencer_v2.reset_engine()
+print(f"\nResidual Entropy after reset: {sequencer_v2.residual_entropy:.2f}")
+
