@@ -1,0 +1,179 @@
+# prompt: This is a solid, clear implementation — nicely done! You have:
+# 	•	Encoded your full 1–9 letter/number/function mapping, complete with example words and essences.
+# 	•	Built your FSA mapping with number, function, and polarity info per letter.
+# 	•	Marked vowels with a “-” polarity to differentiate them.
+# 	•	Created a clean utility to convert any input word into a list of (number, polarity) tuples, filtering out characters not in the FSA.
+# Your example runs demonstrate that the system handles mixed inputs gracefully (ignoring digits or unrecognized symbols), and maps words into meaningful symbolic sequences.
+# ⸻
+# If you’d like, here are some ideas for next steps or expansions you might want to consider:
+# 	1.	Add polarity distinction beyond vowels
+# Maybe define “strong” and “weak” consonants or differentiate based on function or semantic category. You can add more nuanced polarities like "+", "-", "~", "^" etc.
+# 	2.	Create reverse lookup
+# Given a (number, polarity) sequence, suggest possible letter or word candidates.
+# 	3.	Scoring or pattern matching
+# Develop rules or heuristics to interpret numeric-polarity sequences for symbolic meaning or categorization.
+# 	4.	Integrate with your symbolic ontology
+# Attach these sequences as properties or features of symbolic instances, and write inference rules on them.
+# 	5.	Visualization
+# Map numeric-polarity sequences onto charts or graphs for visual insight.
+# ⸻
+# If you want me to help you with any of these, or write additional utilities, just say so! Otherwise, congrats on the great foundational work — this looks very promising!
+
+# Ontology-Compatible Symbolic Output Structure
+
+def generate_symbolic_moment(cycle, moment_value, stimulation, agency, simulation, recursion):
+    """Generates a dictionary representing a symbolic moment, ontology-ready."""
+    moment_id = f"http://example.org/moment/{uuid.uuid4()}" # Unique ID
+    data = {
+        "@context": {
+            "ex": "http://example.org/",
+            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            "schema": "http://schema.org/"
+        },
+        "@id": moment_id,
+        "@type": "ex:ExperientialMoment",
+        "ex:cycle": cycle,
+        "ex:value": moment_value,
+        "ex:contributesTo": {
+            "@id": "ex:CognitiveProcess1", # Placeholder for a higher-level process
+            "@type": "ex:CognitiveProcess"
+        },
+        "ex:derivedFrom": [
+            {
+                "@id": f"ex:Stimulation_{cycle}",
+                "@type": "ex:StimulusValue",
+                "schema:value": stimulation
+            },
+            {
+                "@id": f"ex:Agency_{cycle}",
+                "@type": "ex:AgencyValue",
+                "schema:value": agency
+            },
+            {
+                "@id": f"ex:Simulation_{cycle}",
+                "@type": "ex:SimulationValue",
+                "schema:value": simulation
+            },
+            {
+                "@id": f"ex:Recursion_{cycle}",
+                "@type": "ex:RecursionValue",
+                "schema:value": recursion
+            }
+        ]
+    }
+    return data
+
+def combined_recursive_loop_symbolic(
+    init_stimulation, agency, simulation, recursion,
+    s_weight=1.0, a_weight=1.0, sim_weight=1.0, r_weight=1.0,
+    cycles=30,
+    feedback_strength=0.1,
+    memory_length=5,
+    decay_rate=0.05,
+    apply_sigmoid_feedback=True,
+    noise_level=0.0
+):
+    """
+    Runs the simulation and generates a list of symbolic moment objects.
+    """
+    stimulation = init_stimulation
+    symbolic_moments = []
+    moment_values = [] # Keep track of numerical moment values for feedback
+
+    for i in range(cycles):
+        moment_value = create_experiential_moment(stimulation, agency, simulation, recursion,
+                                                 s_weight, a_weight, sim_weight, r_weight)
+        if noise_level > 0:
+            moment_value += np.random.normal(0, noise_level)
+            moment_value = max(0, moment_value) # Ensure non-negative
+
+        # Generate symbolic representation
+        symbolic_moment = generate_symbolic_moment(i, moment_value, stimulation, agency, simulation, recursion)
+        symbolic_moments.append(symbolic_moment)
+        moment_values.append(moment_value)
+
+        # Calculate feedback
+        if i >= memory_length:
+            past_moments = moment_values[i - memory_length : i]
+            feedback_raw = np.mean(past_moments) * feedback_strength
+            # Apply sigmoid nonlinearity to feedback if enabled
+            if apply_sigmoid_feedback:
+                # Center sigmoid around zero by subtracting 0.5
+                feedback = sigmoid(feedback_raw) - 0.5
+            else:
+                feedback = feedback_raw
+        else:
+            feedback = 0 # No feedback until enough history is built
+
+        # Update stimulation
+        stimulation = (stimulation + feedback) * (1 - decay_rate)
+        stimulation = max(0, stimulation) # Ensure stimulation remains non-negative
+
+
+    return symbolic_moments
+
+# --- Example Usage for Symbolic Output ---
+# Using the same parameters as the previous example
+init_s = 0.5
+ag = 0.7
+sim = 0.6
+rec = 0.8
+cycles = 50
+feedback_strength = 0.5
+memory_length = 10
+decay_rate = 0.03
+noise = 0.05
+
+symbolic_moment_history = combined_recursive_loop_symbolic(
+    init_s, ag, sim, rec,
+    cycles=cycles,
+    feedback_strength=feedback_strength,
+    memory_length=memory_length,
+    decay_rate=decay_rate,
+    noise_level=noise
+)
+
+# Print the symbolic data for the first few cycles (or all if desired)
+# print(json.dumps(symbolic_moment_history[:5], indent=2)) # Print first 5 for brevity
+
+# You can extract the numerical values from the symbolic data for plotting
+numerical_moments = [m["ex:value"] for m in symbolic_moment_history]
+
+plt.figure(figsize=(12, 6))
+plt.plot(numerical_moments)
+plt.xlabel("Cycle")
+plt.ylabel("Experiential Moment")
+plt.title("Experiential Moment Over Time with Feedback and Decay (Derived from Symbolic Data)")
+plt.grid(True)
+plt.show()
+
+# Example of how to structure the whole simulation run as an RDF-ready graph
+simulation_graph = {
+    "@context": {
+        "ex": "http://example.org/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "schema": "http://schema.org/"
+    },
+    "@id": f"ex:SimulationRun_{uuid.uuid4()}",
+    "@type": "ex:SimulationRun",
+    "ex:hasParameter": [
+        {"@type": "ex:Parameter", "ex:name": "initial_stimulation", "schema:value": init_s},
+        {"@type": "ex:Parameter", "ex:name": "agency", "schema:value": ag},
+        {"@type": "ex:Parameter", "ex:name": "simulation", "schema:value": sim},
+        {"@type": "ex:Parameter", "ex:name": "recursion", "schema:value": rec},
+        {"@type": "ex:Parameter", "ex:name": "cycles", "schema:value": cycles},
+        {"@type": "ex:Parameter", "ex:name": "feedback_strength", "schema:value": feedback_strength},
+        {"@type": "ex:Parameter", "ex:name": "memory_length", "schema:value": memory_length},
+        {"@type": "ex:Parameter", "ex:name": "decay_rate", "schema:value": decay_rate},
+        {"@type": "ex:Parameter", "ex:name": "noise_level", "schema:value": noise},
+    ],
+    "ex:generatesMoment": [{"@id": m["@id"]} for m in symbolic_moment_history] # Link to individual moments
+}
+
+# Combine simulation parameters and symbolic moments into one JSON-LD structure
+full_export_data = [simulation_graph] + symbolic_moment_history
+
+# Print the full graph structure (can be large)
+# print(json.dumps(full_export_data, indent=2))
+
+# This `full_export_data` can be saved to a file or sent to an RDF store.
