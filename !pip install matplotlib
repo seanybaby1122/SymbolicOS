@@ -1,25 +1,504 @@
-# prompt: Requirement already satisfied: matplotlib-venn in /usr/local/lib/python3.11/dist-packages (1.1.2)
-# Requirement already satisfied: matplotlib in /usr/local/lib/python3.11/dist-packages (from matplotlib-venn) (3.10.0)
-# Requirement already satisfied: numpy in /usr/local/lib/python3.11/dist-packages (from matplotlib-venn) (2.0.2)
-# Requirement already satisfied: scipy in /usr/local/lib/python3.11/dist-packages (from matplotlib-venn) (1.15.3)
-# Requirement already satisfied: contourpy>=1.0.1 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (1.3.2)
-# Requirement already satisfied: cycler>=0.10 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (0.12.1)
-# Requirement already satisfied: fonttools>=4.22.0 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (4.58.0)
-# Requirement already satisfied: kiwisolver>=1.3.1 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (1.4.8)
-# Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (24.2)
-# Requirement already satisfied: pillow>=8 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (11.2.1)
-# Requirement already satisfied: pyparsing>=2.3.1 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (3.2.3)
-# Requirement already satisfied: python-dateutil>=2.7 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (2.9.0.post0)
-# prompt: Requirement already satisfied: matplotlib-venn in /usr/local/lib/python3.11/dist-packages (1.1.2)
-# Requirement already satisfied: matplotlib in /usr/local/lib/python3.11/dist-packages (from matplotlib-venn) (3.10.0)
-# Requirement already satisfied: numpy in /usr/local/lib/python3.11/dist-packages (from matplotlib-venn) (2.0.2)
-# Requirement already satisfied: scipy in /usr/local/lib/python3.11/dist-packages (from matplotlib-venn) (1.15.3)
-# Requirement already satisfied: contourpy>=1.0.1 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (1.3.2)
-# Requirement already satisfied: cycler>=0.10 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (0.12.1)
-# Requirement already satisfied: fonttools>=4.22.0 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (4.58.0)
-# Requirement already satisfied: kiwisolver>=1.3.1 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (1.4.8)
-# Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (24.2)
-# Requirement already satisfied: pillow>=8 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (11.2.1)
-# Requirement already satisfied: pyparsing>=2.3.1 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (3.2.3)
-# Requirement already satisfied: python-dateutil>=2.7 in /usr/local/lib/python3.11/dist-packages (from matplotlib->matplotlib-venn) (2.9.0.post0)
-# Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.11/dist-packages (from python-dateutil>=2.7->matplotlib->matplotlib-venn) (1.16.0)
+# prompt: Turn this into a symbolic engine with absolute knowledge and a docker file # model_manager.py
+# import os
+# import json
+# import joblib
+# import pandas as pd
+# from datetime import datetime
+# from sklearn.model_selection import cross_val_score
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.preprocessing import LabelEncoder
+# class ModelManager:
+#     def __init__(self, model=None, retrain_f1_threshold=0.8):
+#         self.model = model
+#         self.retrain_f1_threshold = retrain_f1_threshold
+#         self.label_encoder = None
+#         self.training_data = []
+#     def encode_acronym_jep(self, acronym: str):
+#         return [ord(char) - ord('A') + 1 for char in acronym.upper()]
+#     def prepare_training_data(self, data: list[dict]):
+#         self.label_encoder = LabelEncoder()
+#         X = [self.encode_acronym_jep(item["acronym"]) for item in data]
+#         y = self.label_encoder.fit_transform([item["output"] for item in data])
+#         return X, y
+#     def train_model(self, data: list[dict]):
+#         X, y = self.prepare_training_data(data)
+#         self.model.fit(X, y)
+#     def select_and_train_best_model(self, data: list[dict]):
+#         models = {
+#             "DecisionTree": DecisionTreeClassifier(),
+#             "RandomForest": RandomForestClassifier(n_estimators=50)
+#         }
+#         best_model, best_score, best_name = None, -1, ""
+#         X, y = self.prepare_training_data(data)
+#         for name, model in models.items():
+#             scores = cross_val_score(model, X, y, cv=5, scoring='f1_weighted')
+#             avg_score = scores.mean()
+#             print(f"[Model Selection] {name}: F1={avg_score:.4f}")
+#             if avg_score > best_score:
+#                 best_model, best_score, best_name = model, avg_score, name
+#         self.model = best_model
+#         self.train_model(data)
+#         version = datetime.now().strftime("%Y%m%d%H%M%S")
+#         model_path = self.save_model(version)
+#         self.save_metadata(best_score, self.
+
+class SmartNamingEngine:
+  """
+  Engine for generating smart, descriptive names for symbolic elements.
+  Think of it as a semantic naming convention generator.
+  """
+  def generate_name(self, element_type, version, identifier):
+    """Generates a name based on element properties."""
+    # Simple example: Combine type, version, and a hash of the identifier
+    # In a real system, this could be much more sophisticated,
+    # incorporating metadata, context, etc.
+    # Ensure identifier is hashable
+    identifier_hash = abs(hash(str(identifier)))
+    return f"name_{element_type}_{version}_{identifier_hash}"
+
+class DocumentationEngine:
+  """
+  Engine for managing documentation associated with symbolic elements.
+  This becomes your living, breathing knowledge graph of your symbolic constructs.
+  """
+  def __init__(self):
+    self.docs = {} # Store of documentation strings
+
+  def add_documentation(self, element_name, documentation_string):
+    """Adds or updates documentation for a symbolic element."""
+    self.docs[element_name] = documentation_string
+    print(f"Documentation added for '{element_name}'.")
+
+  def get_documentation(self, element_name):
+    """Retrieves documentation for a symbolic element."""
+    return self.docs.get(element_name, "No documentation found.")
+
+class ModularityEngine:
+  """
+  Engine for managing and composing symbolic primitives and operations.
+  Your symbolic_engine_utils layer becomes the “standard library”
+  of symbolic primitives.
+  """
+  def __init__(self):
+    self.primitives = {} # Store of callable primitives/functions
+
+  def add_primitive(self, name, primitive_function):
+    """Adds a primitive function to the library."""
+    self.primitives[name] = primitive_function
+
+  def compose_operation(self, operation_name, primitive_names):
+    """Composes an operation by sequencing existing primitives."""
+    # In a real system, this would build a more complex execution graph.
+    # Here, we'll just return a list of the primitive functions to execute in order.
+    return [self.primitives[name] for name in primitive_names if name in self.primitives]
+
+class KnowledgePredictionEngine:
+  """
+  Core engine for processing symbolic data and making predictions
+  based on learned patterns and relationships.
+  Can predict real time everything (aspirational).
+  """
+  def predict(self, symbolic_data):
+    """Processes symbolic data and generates a prediction."""
+    # This is a placeholder for complex symbolic reasoning and prediction logic.
+    # In a real system, this would involve knowledge graphs, reasoning algorithms,
+    # statistical models, etc.
+    print(f"Processing symbolic data for prediction: {symbolic_data}")
+    # Example simple "prediction": Repeat the input data
+    return f"Prediction based on {symbolic_data}: {symbolic_data}"
+
+class RoutingOrchestrationEngine:
+  """
+  Engine for directing requests and orchestrating the execution
+  of different symbolic engines and operations.
+  You’re now shaping symbolic cognition at runtime — a router isn’t just code,
+  it’s an AI conductor.
+  """
+  def __init__(self, engines):
+    self.engines = engines # Dictionary of initialized engines
+
+  def route_request(self, request):
+    """Routes a request to the appropriate engine(s)."""
+    # Simple example: Route based on a 'task' key in the request
+    task = request.get('task')
+
+    if task == 'generate_name':
+      return self.engines['smart_naming'].generate_name(
+          request['type'], request['version'], request['identifier'])
+
+    elif task == 'get_documentation':
+      return self.engines['documentation'].get_documentation(request['name'])
+
+    elif task == 'execute_operation':
+        # Retrieve the primitive functions for the operation
+        primitive_functions = self.engines['modularity'].compose_operation(
+            request.get('operation_name'), # operation_name is not directly used here but good practice
+            request.get('primitive_names', [])) # Ensure primitive_names exists
+
+        # Execute the composed operation (simple sequential execution here)
+        result = request.get('initial_data')
+        print(f"Starting operation execution with initial data: {result}")
+        for i, func in enumerate(primitive_functions):
+            try:
+                print(f"  Executing primitive {i+1}/{len(primitive_functions)}: {func.__name__ if hasattr(func, '__name__') else 'anonymous'}")
+                result = func(result)
+                print(f"  Primitive output: {result}")
+            except Exception as e:
+                print(f"Error during primitive execution ({func.__name__ if hasattr(func, '__name__') else 'anonymous'}): {e}")
+                # Depending on requirements, you might want to stop execution or log the error
+                raise # Re-raise the exception
+
+        return result
+
+    elif task == 'predict':
+        # Directly route to the prediction engine
+        return self.engines['knowledge_prediction'].predict(request.get('symbolic_data'))
+
+    else:
+      return "Unknown task"
+
+
+class AbsoluteKnowledgePredictionSystem:
+    """
+    Combines the mini-engines into a symbolic OS for real-time
+    absolute knowledge prediction.
+    """
+    def __init__(self):
+        self.smart_naming_engine = SmartNamingEngine()
+        self.documentation_engine = DocumentationEngine()
+        self.modularity_engine = ModularityEngine()
+        self.knowledge_prediction_engine = KnowledgePredictionEngine()
+
+        self.engines = {
+            'smart_naming': self.smart_naming_engine,
+            'documentation': self.documentation_engine,
+            'modularity': self.modularity_engine,
+            'knowledge_prediction': self.knowledge_prediction_engine,
+        }
+
+        self.routing_orchestration_engine = RoutingOrchestrationEngine(self.engines)
+
+    def process_symbolic_input(self, symbolic_input):
+        """
+        Processes symbolic input through the system.
+        This is a high-level entry point that orchestrates the flow.
+        """
+        print(f"\n--- Processing Input: {symbolic_input} ---")
+
+        # Example flow:
+        # 1. Potentially name the symbolic input using the SmartNamingEngine
+        # 2. Document the symbolic input using the DocumentationEngine
+        # 3. Prepare the input for prediction using the ModularityEngine (if needed)
+        # 4. Route the input to the KnowledgePredictionEngine via the Router
+        # 5. Get the prediction
+
+        # Example: Generate a name for the input
+        input_name = self.smart_naming_engine.generate_name(
+            element_type='input_data',
+            version='1.0',
+            identifier=abs(hash(str(symbolic_input))))
+        print(f"Generated input name: {input_name}")
+
+        # Example: Add documentation for the input
+        self.documentation_engine.add_documentation(
+            input_name, f"Raw symbolic input data received by the system: {symbolic_input}")
+        print(f"Added documentation for {input_name}")
+
+        # Example: Retrieve documentation
+        retrieved_doc = self.documentation_engine.get_documentation(input_name)
+        print(f"Retrieved documentation for {input_name}: {retrieved_doc}")
+
+        # Example: Define and add a primitive for processing
+        def data_processing_primitive(data):
+            print("Executing data processing primitive...")
+            # Simple transformation
+            return str(data).upper() + "_PROCESSED"
+
+        self.modularity_engine.add_primitive("process_data", data_processing_primitive)
+        print("Added 'process_data' primitive.")
+
+        # Example: Define and add a primitive for validation
+        def data_validation_primitive(data):
+            print("Executing data validation primitive...")
+            if isinstance(data, str) and len(data.split()) > 2: # Example validation
+                return data + "_VALIDATED"
+            else:
+                return data + "_INVALIDATED"
+
+        self.modularity_engine.add_primitive("validate_data", data_validation_primitive)
+        print("Added 'validate_data' primitive.")
+
+
+        # Example: Compose an operation using the primitives
+        operation_name = "validate_transform_and_predict_flow"
+        # This operation will validate, then process, then predict
+        primitive_names = ["validate_data", "process_data"]
+        # Note: The composition step itself doesn't execute, it prepares the sequence
+        print(f"Composed operation: {operation_name} using primitives: {primitive_names}")
+
+        # Example: Route a request to execute the operation via the router
+        operation_execution_request = {
+            'task': 'execute_operation',
+            'operation_name': operation_name,
+            'primitive_names': primitive_names,
+            'initial_data': symbolic_input
+        }
+
+        processed_data_before_prediction = self.routing_orchestration_engine.route_request(operation_execution_request)
+        print(f"Data processed by modularity engine operation: {processed_data_before_prediction}")
+
+
+        # Now, route the result of the operation execution to the prediction engine
+        prediction_request = {
+            'task': 'predict',
+            'symbolic_data': processed_data_before_prediction
+        }
+
+        final_prediction = self.routing_orchestration_engine.route_request(prediction_request)
+        print(f"Final Prediction: {final_prediction}")
+
+        print("--- Processing Complete ---")
+        return final_prediction
+
+# --- Example Usage Snippets ---
+
+# Initialize the system
+system = AbsoluteKnowledgePredictionSystem()
+
+# Example 1: Process simple symbolic data
+print("\n--- Example Usage 1: Simple Data Processing and Prediction ---")
+symbolic_data_1 = {"concept": "gravity", "state": "active"}
+system.process_symbolic_input(symbolic_data_1)
+
+# Example 2: Process another piece of symbolic data
+print("\n--- Example Usage 2: Another Data Input ---")
+symbolic_data_2 = "this is a test string with enough words"
+system.process_symbolic_input(symbolic_data_2)
+
+# Example 3: Demonstrate documentation retrieval directly
+print("\n--- Example Usage 3: Direct Documentation Retrieval ---")
+# We need the generated name from the previous runs. Let's regenerate one for clarity.
+name_for_ex3 = system.smart_naming_engine.generate_name(
+            element_type='input_data',
+            version='1.0',
+            identifier=abs(hash(str({"concept": "gravity", "state": "active"})))) # Use the same identifier as Example 1
+
+doc_for_ex3 = system.documentation_engine.get_documentation(name_for_ex3)
+print(f"Documentation for '{name_for_ex3}': {doc_for_ex3}")
+
+# Example 4: Process data that will be invalidated
+print("\n--- Example Usage 4: Data that will be invalidated ---")
+symbolic_data_3 = "short" # This will be marked as INVALIDATED by the validator
+system.process_symbolic_input(symbolic_data_3)
+
+
+class CLI:
+    """
+    Command Line Interface for interacting with the AbsoluteKnowledgePredictionSystem.
+    Provides commands for core functionalities.
+    """
+    def __init__(self, system):
+        self.system = system
+        self.commands = {
+            'process': self.process_command,
+            'name': self.name_command,
+            'docs': self.docs_command,
+            'add_primitive': self.add_primitive_command,
+            'compose_operation': self.compose_operation_command,
+            'execute_operation': self.execute_operation_command,
+            'help': self.help_command,
+        }
+        # Store defined operations for execution
+        self.defined_operations = {}
+
+    def run(self):
+        """Starts the CLI interactive loop."""
+        print("Absolute Knowledge Prediction System CLI. Type 'help' for commands.")
+        while True:
+            try:
+                user_input = input("> ").strip()
+                if user_input.lower() in ['quit', 'exit']:
+                    break
+                self.execute_command(user_input)
+            except Exception as e:
+                print(f"Error: {e}")
+
+    def execute_command(self, user_input):
+        """Parses and executes a user command."""
+        parts = user_input.split(maxsplit=1)
+        command = parts[0].lower()
+        args = parts[1] if len(parts) > 1 else ""
+
+        if command in self.commands:
+            self.commands[command](args)
+        else:
+            print(f"Unknown command: {command}. Type 'help' for a list of commands.")
+
+    def help_command(self, args):
+        """Displays help information for commands."""
+        print("Available commands:")
+        print("  process <symbolic_input> - Process symbolic input through the system using the default flow.")
+        print("  name <type> <version> <identifier> - Generate a name.")
+        print("  docs <element_name> - Get documentation for an element.")
+        print("  add_primitive <name> <function_code> - Add a new primitive function (WARNING: uses eval).")
+        print("  compose_operation <operation_name> <primitive_names_comma_separated> - Compose an operation sequence.")
+        print("  execute_operation <operation_name> <initial_data> - Execute a composed operation (WARNING: uses eval for initial_data).")
+        print("  help - Show this help message.")
+        print("  quit or exit - Exit the CLI.")
+
+    def process_command(self, args):
+        """CLI command to process symbolic input using the default system flow."""
+        if not args:
+            print("Usage: process <symbolic_input>")
+            return
+        # Simple evaluation for input. A more robust system would use a safe parser.
+        try:
+            symbolic_input = eval(args)
+            result = self.system.process_symbolic_input(symbolic_input)
+            print(f"Process command result: {result}")
+        except Exception as e:
+            print(f"Error evaluating input or during processing: {e}")
+
+    def name_command(self, args):
+        """CLI command to generate a name."""
+        parts = args.split(maxsplit=2)
+        if len(parts) != 3:
+            print("Usage: name <type> <version> <identifier>")
+            return
+        element_type, version, identifier_str = parts
+        try:
+            identifier = eval(identifier_str) # Safely evaluate identifier if needed
+            name = self.system.smart_naming_engine.generate_name(
+                element_type=element_type,
+                version=version,
+                identifier=abs(hash(str(identifier)))) # Ensure identifier is hashable
+            print(f"Generated name: {name}")
+        except Exception as e:
+            print(f"Error generating name: {e}")
+
+
+    def docs_command(self, args):
+        """CLI command to get documentation."""
+        if not args:
+            print("Usage: docs <element_name>")
+            return
+        element_name = args
+        doc = self.system.documentation_engine.get_documentation(element_name)
+        print(f"Documentation for '{element_name}': {doc}")
+
+    def add_primitive_command(self, args):
+        """CLI command to add a new primitive."""
+        parts = args.split(maxsplit=1)
+        if len(parts) != 2:
+            print("Usage: add_primitive <name> <function_code>")
+            print("Example: add_primitive greet 'lambda data: \"Hello \" + str(data)'")
+            return
+        primitive_name, function_code_str = parts
+        try:
+            # WARNING: eval is dangerous for arbitrary code execution.
+            # A real system should use a safer mechanism like a restricted DSL
+            # or limit primitive code to simple expressions.
+            # For this example, we'll use eval for demonstration, but be aware of the risk.
+            primitive_function = eval(function_code_str)
+            self.system.modularity_engine.add_primitive(primitive_name, primitive_function)
+            print(f"Primitive '{primitive_name}' added successfully.")
+        except Exception as e:
+            print(f"Error adding primitive: {e}")
+            print("Please ensure the function code is valid Python and follows the lambda format.")
+
+
+    def compose_operation_command(self, args):
+        """CLI command to compose an operation."""
+        parts = args.split(maxsplit=1)
+        if len(parts) != 2:
+            print("Usage: compose_operation <operation_name> <primitive_names_comma_separated>")
+            return
+        operation_name, primitive_names_str = parts
+        primitive_names = [name.strip() for name in primitive_names_str.split(',')]
+
+        # Check if all primitives exist
+        missing_primitives = [name for name in primitive_names if name not in self.system.modularity_engine.primitives]
+        if missing_primitives:
+            print(f"Error: The following primitives do not exist: {', '.join(missing_primitives)}")
+            print(f"Available primitives: {list(self.system.modularity_engine.primitives.keys())}")
+            return
+
+        # Store the composition for later execution
+        self.defined_operations[operation_name] = primitive_names
+        print(f"Operation '{operation_name}' composed with primitives: {primitive_names}")
+
+    def execute_operation_command(self, args):
+        """CLI command to execute a composed operation."""
+        parts = args.split(maxsplit=1)
+        if len(parts) != 2:
+            print("Usage: execute_operation <operation_name> <initial_data>")
+            return
+        operation_name, initial_data_str = parts
+
+        if operation_name not in self.defined_operations:
+            print(f"Error: Operation '{operation_name}' not found.")
+            print(f"Available operations: {list(self.defined_operations.keys())}")
+            return
+
+        primitive_names = self.defined_operations[operation_name]
+
+        try:
+             # Simple evaluation for initial data. Use safer method in production.
+            initial_data = eval(initial_data_str)
+
+            # Use the routing/orchestration engine to execute the composed operation
+            # This leverages the existing logic in RoutingOrchestrationEngine
+            execution_request = {
+                'task': 'execute_operation',
+                'operation_name': operation_name, # Pass the operation name
+                'primitive_names': primitive_names, # Pass the list of primitive names
+                'initial_data': initial_data
+            }
+
+            result_from_orchestrator = self.system.routing_orchestration_engine.route_request(execution_request)
+
+            print(f"Execution of operation '{operation_name}' result: {result_from_orchestrator}")
+
+            # Note: The execution_operation task currently just runs the primitives sequentially.
+            # To fully integrate with prediction, you'd modify the Orchestrator
+            # to potentially pass the final output of an operation to the prediction engine
+            # as part of a larger task flow.
+
+        except Exception as e:
+            print(f"Error executing operation: {e}")
+            # Provide feedback if primitive execution fails
+            if "name '" in str(e) and "' is not defined":
+                print("Make sure all primitives used in the operation exist.")
+            else:
+                print(f"Details: {e}")
+
+
+# Initialize the system
+system = AbsoluteKnowledgePredictionSystem()
+
+# Initialize the CLI with the system instance
+cli = CLI(system)
+
+# Start the CLI (this will block until 'quit' or 'exit' is typed)
+# To run this in Colab/Jupyter, you might want to run the CLI in a separate cell
+# after defining the system and CLI classes, and then stop the cell execution
+# when you are done with the interactive session.
+
+# cli.run() # Uncomment this line to start the interactive CLI
+
+# Example of how you might run single commands non-interactively for testing
+# print("\n--- Running non-interactive CLI examples ---")
+# cli.execute_command("process {'test_key': 'test_value'}")
+# cli.execute_command("name concept 2.0 {'id': 12345}")
+# # Note: The name generation is based on hash, so the name changes.
+# # You would need to capture and use the output name for docs_command.
+# # Example:
+# # test_name_output = system.smart_naming_engine.generate_name('concept', '2.0', {'id': 12345})
+# # system.documentation_engine.add_documentation(test_name_output, "Documentation for test concept")
+# # cli.execute_command(f"docs {test_name_output}")
+# cli.execute_command("add_primitive add_ten 'lambda x: x + 10'")
+# cli.execute_command("compose_operation add_and_process add_ten,process_data")
+# cli.execute_command("execute_operation add_and_process 5") # 5 -> 15 -> "15_PROCESSED"
+# cli.execute_command("execute_operation add_and_process 'abc'") # 'abc' -> 'abc10' (might error if add_ten expects number) -> "ABC10_PROCESSED" (assuming it converts to string)
+
