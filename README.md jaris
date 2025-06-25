@@ -461,46 +461,7 @@ class CLI:
             print(f"Execution of operation '{operation_name}' result: {result_from_orchestrator}")
 
             # Note: The execution_operation task currently just runs the primitives sequentially.
-            # To fully integrate with prediction, you'd modify the Orchestrator
-            # to potentially pass the final output of an operation to the prediction engine
-            # as part of a larger task flow.
 
-        except Exception as e:
-            print(f"Error executing operation: {e}")
-            # Provide feedback if primitive execution fails
-            if "name '" in str(e) and "' is not defined":
-                print("Make sure all primitives used in the operation exist.")
-            else:
-                print(f"Details: {e}")
-
-
-# Initialize the system
-system = AbsoluteKnowledgePredictionSystem()
-
-# Initialize the CLI with the system instance
-cli = CLI(system)
-
-# Start the CLI (this will block until 'quit' or 'exit' is typed)
-# To run this in Colab/Jupyter, you might want to run the CLI in a separate cell
-# after defining the system and CLI classes, and then stop the cell execution
-# when you are done with the interactive session.
-
-# cli.run() # Uncomment this line to start the interactive CLI
-
-# Example of how you might run single commands non-interactively for testing
-# print("\n--- Running non-interactive CLI examples ---")
-# cli.execute_command("process {'test_key': 'test_value'}")
-# cli.execute_command("name concept 2.0 {'id': 12345}")
-# # Note: The name generation is based on hash, so the name changes.
-# # You would need to capture and use the output name for docs_command.
-# # Example:
-# # test_name_output = system.smart_naming_engine.generate_name('concept', '2.0', {'id': 12345})
-# # system.documentation_engine.add_documentation(test_name_output, "Documentation for test concept")
-# # cli.execute_command(f"docs {test_name_output}")
-# cli.execute_command("add_primitive add_ten 'lambda x: x + 10'")
-# cli.execute_command("compose_operation add_and_process add_ten,process_data")
-# cli.execute_command("execute_operation add_and_process 5") # 5 -> 15 -> "15_PROCESSED"
-# cli.execute_command("execute_operation add_and_process 'abc'") # 'abc' -> 'abc10' (might error if add_ten expects number) -> "ABC10_PROCESSED" (assuming it converts to string)
 
 
 
